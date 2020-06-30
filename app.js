@@ -34,7 +34,7 @@ var app = express();
  https.createServer({
      key: fs.readFileSync('key.pem'),
      cert: fs.readFileSync('cert.pem')
- }, app).listen(8080);
+ }, app).listen(9443);
 
 // START OF CHANGE
 app.use(cookieParser());
