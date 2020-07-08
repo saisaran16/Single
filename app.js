@@ -15,7 +15,7 @@ var session = require('express-session');
 var passport = require('passport'); 
 var cookieParser = require('cookie-parser');
 var fs = require('fs');
-var http = require('http');
+var https = require('https');
 // END OF CHANGE
 
 // cfenv provides access to your Cloud Foundry environment
@@ -31,10 +31,10 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 // create a new express server
 var app = express();
 // CHANGE ME Uncomment the following section if running locally
- http.createServer({
+ https.createServer({
      key: fs.readFileSync('key.pem'),
      cert: fs.readFileSync('cert.pem')
- }, app).listen(7070);
+ }, app).listen(9443);
 
 // START OF CHANGE
 app.use(cookieParser());
