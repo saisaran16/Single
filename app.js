@@ -95,7 +95,7 @@ function ensureAuthenticated(req, res, next) {
 
 app.get('/auth/sso/callback',function(req, res, next) {
 	var redirect_url = req.session.originalUrl;
-	console.log("redirect url:" + redirect_url );
+	console.log("redirect url is :" + redirect_url );
 	passport.authenticate('openidconnect', {
 		successRedirect: redirect_url,
 		failureRedirect: '/failure',
@@ -114,9 +114,9 @@ app.get('/hello', ensureAuthenticated, function(req, res) {
 
         html += "<pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
         html += "<hr> <a href=\"/\">home</a>";
-	//res.send('Hello '+ claims.given_name + ' ' + claims.family_name + ', your email is ' + claims.email + '<br /> <a href=\'/\'>home</a>');
+	res.send('Hello '+ claims.given_name + ' ' + claims.family_name + ', your email is ' + claims.email + '<br /> <a href=\'/\'>home</a>');
 
-        res.send(html);
+       // res.send(html);
         });
 
 
