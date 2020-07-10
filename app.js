@@ -11,7 +11,7 @@
 var express = require('express');
 
 // START OF CHANGE
-var session = require('express-session');  
+var session = require('express-session');
 var passport = require('passport'); 
 var cookieParser = require('cookie-parser');
 var fs = require('fs');
@@ -31,10 +31,10 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 // create a new express server
 var app = express();
 // CHANGE ME Uncomment the following section if running locally
-// https.createServer({
-//     key: fs.readFileSync('key.pem'),
-//     cert: fs.readFileSync('cert.pem')
-// }, app).listen(9443);
+ https.createServer({
+     key: fs.readFileSync('key.pem'),
+     cert: fs.readFileSync('cert.pem')
+ }, app).listen(7070);
 
 // START OF CHANGE
 app.use(cookieParser());
@@ -61,7 +61,15 @@ var Strategy = new OpenIDConnectStrategy({
                  clientSecret : settings.client_secret,
                  callbackURL : settings.callback_url,
                  skipUserProfile: true,
-                 issuer: settings.issuer_id}, 
+                 issuer: settings.issuer_id,
+		 addCACert: true,
+                 CACertPathList: [
+                   '/verisign-root-ca.pem',
+                    '/symantec.pem',
+                    '/blueidSSL.pem',
+                    '/prepiam.toronto.ca.ibm.com.pem'
+		]
+}, 
          function(iss, sub, profile, accessToken, refreshToken, params, done)  {
 	        process.nextTick(function() {
                 profile.accessToken = accessToken;
@@ -109,8 +117,8 @@ app.get('/failure', function(req, res) {
 
 app.get('/hello', ensureAuthenticated, function(req, res) {
 	var claims = req.user['_json'];
-	// console.log(claims);
-        var html ="<p>Hello " + claims.firstName + " " + claims.lastName +  " - " + claims.uid + ": </p>";
+	console.log(claims);
+        var html ="<p>Hello " + claims.firstName + " " + claims.lastName + ": </p>";
 
         html += "<pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
         html += "<hr> <a href=\"/\">home</a>";
@@ -138,13 +146,13 @@ app.use(express.static(__dirname + '/public'));
 
 // get the app environment from Cloud Foundry
 // CHANGE ME Comment out following line if running locally
- var appEnv = cfenv.getAppEnv();
+// var appEnv = cfenv.getAppEnv();
 
 // start server on the specified port and binding host
 // CHANGE ME Comment out following line if running locally
- app.listen(appEnv.port, function() {
+// app.listen(appEnv.port, function() {
 
 // print a message when the server starts listening
-  console.log("server starting on " + appEnv.url);
+//  console.log("server starting on " + appEnv.url);
 // CHANGE ME  
- });
+// });
