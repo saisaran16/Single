@@ -11,12 +11,11 @@
 var express = require('express');
 
 // START OF CHANGE
-var session = require('express-session');
+var session = require('express-session');  
 var passport = require('passport'); 
 var cookieParser = require('cookie-parser');
 var fs = require('fs');
 var https = require('https');
-const HttpsProxyAgent = require('https-proxy-agent');
 // END OF CHANGE
 
 // cfenv provides access to your Cloud Foundry environment
@@ -32,10 +31,10 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 // create a new express server
 var app = express();
 // CHANGE ME Uncomment the following section if running locally
- https.createServer({
-     key: fs.readFileSync('key.pem'),
-     cert: fs.readFileSync('cert.pem')
- }, app).listen(9443);
+// https.createServer({
+//     key: fs.readFileSync('key.pem'),
+//     cert: fs.readFileSync('cert.pem')
+// }, app).listen(9443);
 
 // START OF CHANGE
 app.use(cookieParser());
@@ -71,8 +70,6 @@ var Strategy = new OpenIDConnectStrategy({
 	      	})
 }); 
 
-const agent = new HttpsProxyAgent(process.env.HTTP_PROXY || "http://192.168.23.4:999");
-Strategy._oauth2.setAgent(agent);
 passport.use(Strategy); 
 
 app.get('/', function(req, res) {
@@ -98,7 +95,7 @@ function ensureAuthenticated(req, res, next) {
 
 app.get('/auth/sso/callback',function(req, res, next) {
 	var redirect_url = req.session.originalUrl;
-	console.log("redirect url is :" + redirect_url );
+	console.log("redirect url:" + redirect_url );
 	passport.authenticate('openidconnect', {
 		successRedirect: redirect_url,
 		failureRedirect: '/failure',
@@ -112,14 +109,14 @@ app.get('/failure', function(req, res) {
 
 app.get('/hello', ensureAuthenticated, function(req, res) {
 	var claims = req.user['_json'];
-	console.log(claims);
-        var html ="<p>Hello " + claims.firstName + " " + claims.lastName + ": </p>";
+	// console.log(claims);
+        var html ="<p>Hello " + claims.firstName + " " + claims.lastName +  " - " + claims.uid + ": </p>";
 
         html += "<pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
         html += "<hr> <a href=\"/\">home</a>";
-	res.send('Hello '+ claims.given_name + ' ' + claims.family_name + ', your email is ' + claims.email + '<br /> <a href=\'/\'>home</a>');
+	//res.send('Hello '+ claims.given_name + ' ' + claims.family_name + ', your email is ' + claims.email + '<br /> <a href=\'/\'>home</a>');
 
-       // res.send(html);
+        res.send(html);
         });
 
 
@@ -141,13 +138,13 @@ app.use(express.static(__dirname + '/public'));
 
 // get the app environment from Cloud Foundry
 // CHANGE ME Comment out following line if running locally
-// var appEnv = cfenv.getAppEnv();
+ var appEnv = cfenv.getAppEnv();
 
 // start server on the specified port and binding host
 // CHANGE ME Comment out following line if running locally
-// app.listen(appEnv.port, function() {
+ app.listen(appEnv.port, function() {
 
 // print a message when the server starts listening
-//  console.log("server starting on " + appEnv.url);
+  console.log("server starting on " + appEnv.url);
 // CHANGE ME  
-// });
+ });
