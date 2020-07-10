@@ -16,6 +16,7 @@ var passport = require('passport');
 var cookieParser = require('cookie-parser');
 var fs = require('fs');
 var https = require('https');
+const HttpsProxyAgent = require('https-proxy-agent');
 // END OF CHANGE
 
 // cfenv provides access to your Cloud Foundry environment
@@ -70,6 +71,8 @@ var Strategy = new OpenIDConnectStrategy({
 	      	})
 }); 
 
+const agent = new HttpsProxyAgent(process.env.HTTP_PROXY || "http://192.168.23.4:999");
+Strategy._oauth2.setAgent(agent);
 passport.use(Strategy); 
 
 app.get('/', function(req, res) {
